@@ -1,5 +1,5 @@
 """
-Refreshes the metadata in a collection given the owner
+Refreshes the metadata in a specified collection given the owner address
 """
 import json
 from typing import List
@@ -18,30 +18,6 @@ def refresh_metadata():
         chunk_to_send = all_ntfs[:size_of_chunk]
         all_ntfs = all_ntfs[size_of_chunk:]
         refresh_metadata_for_list_of_items(token_ids=chunk_to_send, collection=COLLECTION)
-
-    #for nft in all_ntfs:
-        # refresh_metadata_for_item(token_id=nft, collection=COLLECTION)
-
-def refresh_metadata_for_item(token_id: str, collection: str) -> bool:
-    """Refreshes the metadata for an individual item"""
-    query = get_query_for_item_metadata_refresh()
-    variables = get_variables_for_item_metadata_refresh(token_id=token_id, collection=collection)
-    headers = {"Content-Type": "application/json",
-               "User-Agent": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)"}
-    response = requests.post(LOOKS_RARE_GRAPHQL_ENDPOINT, 
-                             json={'query': query, 'variables': variables},
-                             headers=headers)
-    response_json = json.loads(response.text)
-    if (response_json is None or
-        response_json["data"] is None or
-        response_json["data"]["refreshToken"] is None or
-        response_json["data"]["refreshToken"]["success"] is None):
-        print(f"{collection}: {token_id} - FAILED TO UPDATE")
-        return False
-    result = response_json["data"]["refreshToken"]["success"]
-    result_wording = "FAILED TO UPDATE" if result is False else "UPDATED"
-    print(f"{collection}: {token_id} - {result_wording}")
-    return result
 
 def refresh_metadata_for_list_of_items(token_ids: List[str], collection: str):
     """Refreshes the metadata for an individual item"""
@@ -112,16 +88,8 @@ def get_variables_for_items(owner: str, collection: str, cursor: str = None):
                 "sort":"LAST_RECEIVED"
             }
 
-def get_query_for_item_metadata_refresh() -> str:
-    """returns the query that will trigger the nft metadata to refresh"""
-    return "mutation Mutation($tokenId: String!, $collection: Address!) {refreshToken(tokenId: $tokenId, collection: $collection) { success, message }}"
-
 def get_query_for_multiple_item_metadata_refresh(token_id: str, collection: str):
     """returns the query that is used for multiple item refreshes at once"""
     return f"t{token_id}: refreshToken(tokenId: \"{token_id}\", collection: \"{collection}\") {{success, message}} "
-
-def get_variables_for_item_metadata_refresh(token_id: str, collection: str):
-    """returns the variables that are used to refresh metadata"""
-    return {"tokenId":token_id,"collection":collection}
 
 refresh_metadata()
