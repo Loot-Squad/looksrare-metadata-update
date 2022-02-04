@@ -6,7 +6,7 @@ from typing import List
 import requests
 
 LOOKS_RARE_GRAPHQL_ENDPOINT = "https://api.looksrare.org/graphql"
-OWNER = "0x3E415cBd89D9C5F0e7476E0F3E7dfe984d0f9Fef"
+OWNER = "0x77FE1dDa1fDd034Ac69d277b0272b76B7C48c1E6"
 COLLECTION = "0x8009250878eD378050eF5D2a48c70E24EB2edE7E"
 
 def refresh_metadata():
